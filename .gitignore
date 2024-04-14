@@ -29,3 +29,5 @@ go.work
 /config.local.hcl
 /bin/
 .env
+docker-compose.local.txt
+Makefile.txt
