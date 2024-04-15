@@ -6,7 +6,7 @@ CREATE TABLE articles
     source_id    BIGINT       NOT NULL,
     title        VARCHAR(255) NOT NULL,
     link         TEXT         NOT NULL UNIQUE,
-    published_at TIMESTAMP    NOT NULL,
+    published_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_at   TIMESTAMP    NOT NULL DEFAULT NOW(),
     posted_at    TIMESTAMP,
     CONSTRAINT fk_articles_source_id

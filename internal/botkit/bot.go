@@ -35,7 +35,7 @@ func (b *Bot) Run(ctx context.Context) error {
 	for {
 		select {
 		case update := <-updates:
-			updateCtx, updateCancel := context.WithTimeout(context.Background(), 5*time.Minute)
+			updateCtx, updateCancel := context.WithTimeout(context.Background(), 1*time.Minute)
 			b.handleUpdate(updateCtx, update)
 			updateCancel()
 		case <-ctx.Done():

@@ -4,7 +4,7 @@ services:
   app:
     build:
       context: .
-    command: ["/app/entrypoint.sh"]
+    # command: ["./entrypoint.sh"]
     depends_on:  
       - db
     links:
@@ -13,9 +13,7 @@ services:
       - '8080:8080'
     environment:
       NFB_DATABASE_DSN: ${NFB_DATABASE_DSN:-postgres://postgres:postgres@db:5432/news_feed_bot?sslmode=disable}
-      NFB_TELEGRAM_BOT_TOKEN: ${NFB_TELEGRAM_BOT_TOKEN}
-      NFB_TELEGRAM_CHANNEL_ID: ${NFB_TELEGRAM_CHANNEL_ID}
-
+      
   db:
     image: postgres:15
     restart: always
