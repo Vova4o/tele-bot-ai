@@ -7,10 +7,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/tomakado/containers/set"
+	"go.tomakado.io/containers/set"
 
-	"github.com/defer-panic/news-feed-bot/internal/model"
-	src "github.com/defer-panic/news-feed-bot/internal/source"
+	"github.com/vova4o/tele-bot-ai/internal/model"
+	src "github.com/vova4o/tele-bot-ai/internal/source"
 )
 
 //go:generate moq --out=mocks/mock_article_storage.go --pkg=mocks . ArticleStorage

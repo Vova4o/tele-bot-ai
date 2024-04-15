@@ -13,14 +13,14 @@ import (
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 
-	"github.com/defer-panic/news-feed-bot/internal/bot"
-	"github.com/defer-panic/news-feed-bot/internal/bot/middleware"
-	"github.com/defer-panic/news-feed-bot/internal/botkit"
-	"github.com/defer-panic/news-feed-bot/internal/config"
-	"github.com/defer-panic/news-feed-bot/internal/fetcher"
-	"github.com/defer-panic/news-feed-bot/internal/notifier"
-	"github.com/defer-panic/news-feed-bot/internal/storage"
-	"github.com/defer-panic/news-feed-bot/internal/summary"
+	"github.com/vova4o/tele-bot-ai/internal/bot"
+	"github.com/vova4o/tele-bot-ai/internal/bot/middleware"
+	"github.com/vova4o/tele-bot-ai/internal/botkit"
+	"github.com/vova4o/tele-bot-ai/internal/config"
+	"github.com/vova4o/tele-bot-ai/internal/fetcher"
+	"github.com/vova4o/tele-bot-ai/internal/notifier"
+	"github.com/vova4o/tele-bot-ai/internal/storage"
+	"github.com/vova4o/tele-bot-ai/internal/summary"
 )
 
 func main() {

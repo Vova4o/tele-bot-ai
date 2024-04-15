@@ -7,7 +7,7 @@ import (
 	"github.com/SlyMarbo/rss"
 	"github.com/samber/lo"
 
-	"github.com/defer-panic/news-feed-bot/internal/model"
+	"github.com/vova4o/tele-bot-ai/internal/model"
 )
 
 type RSSSource struct {

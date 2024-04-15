@@ -5,7 +5,7 @@ import (
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 
-	"github.com/defer-panic/news-feed-bot/internal/botkit"
+	"github.com/vova4o/tele-bot-ai/internal/botkit"
 )
 
 func AdminsOnly(channelID int64, next botkit.ViewFunc) botkit.ViewFunc {

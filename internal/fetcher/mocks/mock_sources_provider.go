@@ -5,8 +5,8 @@ package mocks
 
 import (
 	"context"
-	"github.com/defer-panic/news-feed-bot/internal/fetcher"
-	"github.com/defer-panic/news-feed-bot/internal/model"
+	"github.com/vova4o/tele-bot-ai/internal/fetcher"
+	"github.com/vova4o/tele-bot-ai/internal/model"
 	"sync"
 )
 

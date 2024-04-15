@@ -31,3 +31,4 @@ go.work
 .env
 docker-compose.local.txt
 Makefile.txt
+Dockerfile

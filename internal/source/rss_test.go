@@ -11,8 +11,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/defer-panic/news-feed-bot/internal/model"
-	"github.com/defer-panic/news-feed-bot/internal/source"
+	"github.com/vova4o/tele-bot-ai/internal/model"
+	"github.com/vova4o/tele-bot-ai/internal/source"
 )
 
 //go:embed testdata/feed.xml

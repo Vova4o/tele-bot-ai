@@ -8,7 +8,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/samber/lo"
 
-	"github.com/defer-panic/news-feed-bot/internal/model"
+	"github.com/vova4o/tele-bot-ai/internal/model"
 )
 
 type ArticlePostgresStorage struct {

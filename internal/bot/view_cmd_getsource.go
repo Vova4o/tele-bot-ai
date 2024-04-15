@@ -7,9 +7,9 @@ import (
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 
-	"github.com/defer-panic/news-feed-bot/internal/botkit"
-	"github.com/defer-panic/news-feed-bot/internal/botkit/markup"
-	"github.com/defer-panic/news-feed-bot/internal/model"
+	"github.com/vova4o/tele-bot-ai/internal/botkit"
+	"github.com/vova4o/tele-bot-ai/internal/botkit/markup"
+	"github.com/vova4o/tele-bot-ai/internal/model"
 )
 
 type SourceProvider interface {
