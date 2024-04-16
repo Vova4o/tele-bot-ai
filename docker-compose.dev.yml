@@ -5,6 +5,7 @@ services:
     build:
       context: .
     # command: ["./entrypoint.sh"]
+      # platform: linux/amd64
     depends_on:  
       - db
     links:
@@ -16,6 +17,7 @@ services:
       
   db:
     image: postgres:15
+    # platform: linux/amd64
     restart: always
     environment:
       POSTGRES_USER: postgres

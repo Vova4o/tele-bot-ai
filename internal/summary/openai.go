@@ -9,11 +9,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/sashabaranov/go-openai"
+	"github.com/google/generative-ai-go/genai"
+	"google.golang.org/api/option"
 )
 
 type OpenAISummarizer struct {
-	client  *openai.Client
+	client  *genai.Client
 	prompt  string
 	model   string
 	enabled bool
@@ -21,8 +22,14 @@ type OpenAISummarizer struct {
 }
 
 func NewOpenAISummarizer(apiKey, model, prompt string) *OpenAISummarizer {
+	ctx := context.Background()
+	clientNew, err := genai.NewClient(ctx, option.WithAPIKey(apiKey))
+	if err != nil {
+		log.Fatalf("genai.NewClient: %v", err)
+	}
+
 	s := &OpenAISummarizer{
-		client: openai.NewClient(apiKey),
+		client: clientNew,
 		prompt: prompt,
 		model:  model,
 	}
@@ -36,7 +43,7 @@ func NewOpenAISummarizer(apiKey, model, prompt string) *OpenAISummarizer {
 	return s
 }
 
-func (s *OpenAISummarizer) Summarize(text string) (string, error) {
+func (s *OpenAISummarizer) Summarize(link string, title string) (string, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -44,36 +51,29 @@ func (s *OpenAISummarizer) Summarize(text string) (string, error) {
 		return "", fmt.Errorf("openai summarizer is disabled")
 	}
 
-	request := openai.ChatCompletionRequest{
-		Model: s.model,
-		Messages: []openai.ChatCompletionMessage{
-			{
-				Role:    openai.ChatMessageRoleSystem,
-				Content: s.prompt,
-			},
-			{
-				Role:    openai.ChatMessageRoleUser,
-				Content: text,
-			},
-		},
-		MaxTokens:   1024,
-		Temperature: 1,
-		TopP:        1,
-	}
+	model := s.client.GenerativeModel(s.model)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
+	var temperature float32 = 0.7
+
+	model.SetTemperature(temperature)
+
+	request := link + " " + title+ " " +s.prompt 
+
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
 
-	resp, err := s.client.CreateChatCompletion(ctx, request)
+	resp, err := model.GenerateContent(ctx, genai.Text(request))
 	if err != nil {
-		return "", err
+		log.Fatal(err)
 	}
 
-	if len(resp.Choices) == 0 {
+	// resp.Candidates[0].Content.Parts[0]
+
+	if len(resp.Candidates) == 0 {
 		return "", errors.New("no choices in openai response")
 	}
 
-	rawSummary := strings.TrimSpace(resp.Choices[0].Message.Content)
+	rawSummary := strings.TrimSpace(fmt.Sprintf("%v", resp.Candidates[0].Content.Parts[0]))
 	if strings.HasSuffix(rawSummary, ".") {
 		return rawSummary, nil
 	}
