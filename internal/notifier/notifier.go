@@ -3,14 +3,9 @@ package notifier
 import (
 	"context"
 	"fmt"
-	"io"
 	"log"
-	"net/http"
-	"regexp"
-	"strings"
 	"time"
 
-	"github.com/go-shiori/go-readability"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 
 	"github.com/vova4o/tele-bot-ai/internal/botkit/markup"
@@ -23,7 +18,7 @@ type ArticleProvider interface {
 }
 
 type Summarizer interface {
-	Summarize(text string) (string, error)
+	Summarize(link string, title string) (string, error)
 }
 
 type Notifier struct {
@@ -97,29 +92,29 @@ func (n *Notifier) SelectAndSendArticle(ctx context.Context) error {
 	return n.articles.MarkAsPosted(ctx, article)
 }
 
-var redundantNewLines = regexp.MustCompile(`\n{3,}`)
+// var redundantNewLines = regexp.MustCompile(`\n{3,}`)
 
 func (n *Notifier) extractSummary(article model.Article) (string, error) {
-	var r io.Reader
+	// var r io.Reader
 
-	if article.Summary != "" {
-		r = strings.NewReader(article.Summary)
-	} else {
-		resp, err := http.Get(article.Link)
-		if err != nil {
-			return "", err
-		}
-		defer resp.Body.Close()
+	// if article.Summary != "" {
+	// 	r = strings.NewReader(article.Summary)
+	// } else {
+	// 	resp, err := http.Get(article.Link)
+	// 	if err != nil {
+	// 		return "", err
+	// 	}
+	// 	defer resp.Body.Close()
 
-		r = resp.Body
-	}
+	// 	r = resp.Body
+	// }
 
-	doc, err := readability.FromReader(r, nil)
-	if err != nil {
-		return "", err
-	}
+	// doc, err := readability.FromReader(r, nil)
+	// if err != nil {
+	// 	return "", err
+	// }
 
-	summary, err := n.summarizer.Summarize(cleanupText(doc.TextContent))
+	summary, err := n.summarizer.Summarize(article.Link, article.Title)
 	if err != nil {
 		return "", err
 	}
@@ -127,16 +122,17 @@ func (n *Notifier) extractSummary(article model.Article) (string, error) {
 	return "\n\n" + summary, nil
 }
 
-func cleanupText(text string) string {
-	return redundantNewLines.ReplaceAllString(text, "\n")
-}
+// func cleanupText(text string) string {
+// 	return redundantNewLines.ReplaceAllString(text, "\n")
+// }
 
 func (n *Notifier) sendArticle(article model.Article, summary string) error {
-	const msgFormat = "*%s*%s\n\n%s"
+	// const msgFormat = "*%s*%s\n\n%s"
+	const msgFormat = "%s\n\n%s"
 
 	msg := tgbotapi.NewMessage(n.channelID, fmt.Sprintf(
 		msgFormat,
-		markup.EscapeForMarkdown(article.Title),
+		// markup.EscapeForMarkdown(article.Title),
 		markup.EscapeForMarkdown(summary),
 		markup.EscapeForMarkdown(article.Link),
 	))

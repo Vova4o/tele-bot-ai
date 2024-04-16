@@ -17,8 +17,8 @@ type Config struct {
 	NotificationInterval time.Duration `hcl:"notification_interval" env:"NOTIFICATION_INTERVAL" default:"1m"`
 	FilterKeywords       []string      `hcl:"filter_keywords" env:"FILTER_KEYWORDS"`
 	OpenAIKey            string        `hcl:"openai_key" env:"OPENAI_KEY"`
-	OpenAIPrompt         string        `hcl:"openai_prompt" env:"OPENAI_PROMPT"`
-	OpenAIModel          string        `hcl:"openai_model" env:"OPENAI_MODEL" default:"gpt-3.5-turbo"`
+	OpenAIPrompt         string        `hcl:"openai_prompt" env:"OPENAI_PROMPT" default:"Переведи заголовок на русский и создай увлекательное саммари для данной статьи текст на один абзац. Добавляй интересные детали и ключевые аспекты из самой статьи, чтобы привлечь внимание читателя. Включай смайлики, если они органично вписываются в контекст и могут придать тексту дополнительную динамику. Дай ответ на русском языке."`
+	OpenAIModel          string        `hcl:"openai_model" env:"OPENAI_MODEL" default:"gemini-pro"`
 }
 
 var (
