@@ -3,6 +3,7 @@ package storage
 import (
 	"context"
 	"database/sql"
+	"log"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -16,7 +17,29 @@ type ArticlePostgresStorage struct {
 }
 
 func NewArticleStorage(db *sqlx.DB) *ArticlePostgresStorage {
-	return &ArticlePostgresStorage{db: db}
+	s := &ArticlePostgresStorage{db: db}
+	s.setup()
+	return s
+}
+
+func (s *ArticlePostgresStorage) setup() {
+	_, err := s.db.Exec(`
+        CREATE TABLE IF NOT EXISTS articles (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            source_id INTEGER NOT NULL,
+            title TEXT NOT NULL,
+            link TEXT NOT NULL UNIQUE,
+			summary TEXT,
+            published_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            posted_at DATETIME,
+            FOREIGN KEY (source_id) REFERENCES sources (id) ON DELETE CASCADE
+        );
+    `)
+	if err != nil {
+		log.Printf("[ERROR] failed to create table: %v", err)
+		return
+	}
 }
 
 func (s *ArticlePostgresStorage) Store(ctx context.Context, article model.Article) error {

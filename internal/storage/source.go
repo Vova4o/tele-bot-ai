@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -10,15 +11,33 @@ import (
 	"github.com/vova4o/tele-bot-ai/internal/model"
 )
 
-type SourcePostgresStorage struct {
+type SourceSQLiteStorage struct {
 	db *sqlx.DB
 }
 
-func NewSourceStorage(db *sqlx.DB) *SourcePostgresStorage {
-	return &SourcePostgresStorage{db: db}
+func NewSourceStorage(db *sqlx.DB) *SourceSQLiteStorage {
+	s := &SourceSQLiteStorage{db: db}
+	s.setup()
+	return s
 }
 
-func (s *SourcePostgresStorage) Sources(ctx context.Context) ([]model.Source, error) {
+func (s *SourceSQLiteStorage) setup() {
+	_, err := s.db.Exec(`
+		CREATE TABLE IF NOT EXISTS sources (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			name TEXT NOT NULL,
+			feed_url TEXT NOT NULL,
+			priority INTEGER NOT NULL DEFAULT 1,
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+		);
+	`)
+	if err != nil {
+		log.Printf("[ERROR] failed to create sources table: %v", err)
+		return
+	}
+}
+
+func (s *SourceSQLiteStorage) Sources(ctx context.Context) ([]model.Source, error) {
 	conn, err := s.db.Connx(ctx)
 	if err != nil {
 		return nil, err
@@ -33,7 +52,7 @@ func (s *SourcePostgresStorage) Sources(ctx context.Context) ([]model.Source, er
 	return lo.Map(sources, func(source dbSource, _ int) model.Source { return model.Source(source) }), nil
 }
 
-func (s *SourcePostgresStorage) SourceByID(ctx context.Context, id int64) (*model.Source, error) {
+func (s *SourceSQLiteStorage) SourceByID(ctx context.Context, id int64) (*model.Source, error) {
 	conn, err := s.db.Connx(ctx)
 	if err != nil {
 		return nil, err
@@ -48,7 +67,7 @@ func (s *SourcePostgresStorage) SourceByID(ctx context.Context, id int64) (*mode
 	return (*model.Source)(&source), nil
 }
 
-func (s *SourcePostgresStorage) Add(ctx context.Context, source model.Source) (int64, error) {
+func (s *SourceSQLiteStorage) Add(ctx context.Context, source model.Source) (int64, error) {
 	conn, err := s.db.Connx(ctx)
 	if err != nil {
 		return 0, err
@@ -75,7 +94,7 @@ func (s *SourcePostgresStorage) Add(ctx context.Context, source model.Source) (i
 	return id, nil
 }
 
-func (s *SourcePostgresStorage) SetPriority(ctx context.Context, id int64, priority int) error {
+func (s *SourceSQLiteStorage) SetPriority(ctx context.Context, id int64, priority int) error {
 	conn, err := s.db.Connx(ctx)
 	if err != nil {
 		return err
@@ -87,7 +106,7 @@ func (s *SourcePostgresStorage) SetPriority(ctx context.Context, id int64, prior
 	return err
 }
 
-func (s *SourcePostgresStorage) Delete(ctx context.Context, id int64) error {
+func (s *SourceSQLiteStorage) Delete(ctx context.Context, id int64) error {
 	conn, err := s.db.Connx(ctx)
 	if err != nil {
 		return err

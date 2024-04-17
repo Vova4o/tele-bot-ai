@@ -11,7 +11,7 @@ import (
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/jmoiron/sqlx"
-	_ "github.com/lib/pq"
+	_ "github.com/mattn/go-sqlite3"
 
 	"github.com/vova4o/tele-bot-ai/internal/bot"
 	"github.com/vova4o/tele-bot-ai/internal/bot/middleware"
@@ -30,12 +30,14 @@ func main() {
 		return
 	}
 
-	db, err := sqlx.Connect("postgres", config.Get().DatabaseDSN)
+	db, err := sqlx.Connect("sqlite3", config.Get().DatabaseDSN)
 	if err != nil {
 		log.Printf("[ERROR] failed to connect to db: %v", err)
 		return
 	}
 	defer db.Close()
+
+
 
 	var (
 		articleStorage = storage.NewArticleStorage(db)
