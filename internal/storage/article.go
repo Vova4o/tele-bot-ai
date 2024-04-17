@@ -51,9 +51,8 @@ func (s *ArticlePostgresStorage) Store(ctx context.Context, article model.Articl
 
 	if _, err := conn.ExecContext(
 		ctx,
-		`INSERT INTO articles (source_id, title, link, summary, published_at)
-	    				VALUES ($1, $2, $3, $4, $5)
-	    				ON CONFLICT DO NOTHING;`,
+		`INSERT OR IGNORE INTO articles (source_id, title, link, summary, published_at)
+        				VALUES (?, ?, ?, ?, ?);`,
 		article.SourceID,
 		article.Title,
 		article.Link,
@@ -79,19 +78,19 @@ func (s *ArticlePostgresStorage) AllNotPosted(ctx context.Context, since time.Ti
 		ctx,
 		&articles,
 		`SELECT 
-				a.id AS a_id, 
-				s.priority AS s_priority,
-				s.id AS s_id,
-				a.title AS a_title,
-				a.link AS a_link,
-				a.summary AS a_summary,
-				a.published_at AS a_published_at,
-				a.posted_at AS a_posted_at,
-				a.created_at AS a_created_at
-			FROM articles a JOIN sources s ON s.id = a.source_id
-			WHERE a.posted_at IS NULL 
-				AND a.published_at >= $1::timestamp
-			ORDER BY a.created_at DESC, s_priority DESC LIMIT $2;`,
+                a.id AS a_id, 
+                s.priority AS s_priority,
+                s.id AS s_id,
+                a.title AS a_title,
+                a.link AS a_link,
+                a.summary AS a_summary,
+                a.published_at AS a_published_at,
+                a.posted_at AS a_posted_at,
+                a.created_at AS a_created_at
+            FROM articles a JOIN sources s ON s.id = a.source_id
+            WHERE a.posted_at IS NULL 
+                AND a.published_at >= ?
+            ORDER BY a.created_at DESC, s_priority DESC LIMIT ?;`,
 		since.UTC().Format(time.RFC3339),
 		limit,
 	); err != nil {
@@ -120,7 +119,7 @@ func (s *ArticlePostgresStorage) MarkAsPosted(ctx context.Context, article model
 
 	if _, err := conn.ExecContext(
 		ctx,
-		`UPDATE articles SET posted_at = $1::timestamp WHERE id = $2;`,
+		`UPDATE articles SET posted_at = ? WHERE id = ?;`,
 		time.Now().UTC().Format(time.RFC3339),
 		article.ID,
 	); err != nil {

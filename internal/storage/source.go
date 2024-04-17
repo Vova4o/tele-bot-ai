@@ -53,71 +53,69 @@ func (s *SourceSQLiteStorage) Sources(ctx context.Context) ([]model.Source, erro
 }
 
 func (s *SourceSQLiteStorage) SourceByID(ctx context.Context, id int64) (*model.Source, error) {
-	conn, err := s.db.Connx(ctx)
-	if err != nil {
-		return nil, err
-	}
-	defer conn.Close()
+    conn, err := s.db.Connx(ctx)
+    if err != nil {
+        return nil, err
+    }
+    defer conn.Close()
 
-	var source dbSource
-	if err := conn.GetContext(ctx, &source, `SELECT * FROM sources WHERE id = $1`, id); err != nil {
-		return nil, err
-	}
+    var source dbSource
+    if err := conn.GetContext(ctx, &source, `SELECT * FROM sources WHERE id = ?`, id); err != nil {
+        return nil, err
+    }
 
-	return (*model.Source)(&source), nil
+    return (*model.Source)(&source), nil
 }
 
 func (s *SourceSQLiteStorage) Add(ctx context.Context, source model.Source) (int64, error) {
-	conn, err := s.db.Connx(ctx)
-	if err != nil {
-		return 0, err
-	}
-	defer conn.Close()
+    conn, err := s.db.Connx(ctx)
+    if err != nil {
+        return 0, err
+    }
+    defer conn.Close()
 
-	var id int64
+    res, err := conn.ExecContext(
+        ctx,
+        `INSERT INTO sources (name, feed_url, priority)
+                    VALUES (?, ?, ?);`,
+        source.Name, source.FeedURL, source.Priority,
+    )
+    if err != nil {
+        return 0, err
+    }
 
-	row := conn.QueryRowxContext(
-		ctx,
-		`INSERT INTO sources (name, feed_url, priority)
-					VALUES ($1, $2, $3) RETURNING id;`,
-		source.Name, source.FeedURL, source.Priority,
-	)
+    id, err := res.LastInsertId()
+    if err != nil {
+        return 0, err
+    }
 
-	if err := row.Err(); err != nil {
-		return 0, err
-	}
-
-	if err := row.Scan(&id); err != nil {
-		return 0, err
-	}
-
-	return id, nil
+    return id, nil
 }
 
 func (s *SourceSQLiteStorage) SetPriority(ctx context.Context, id int64, priority int) error {
-	conn, err := s.db.Connx(ctx)
-	if err != nil {
-		return err
-	}
-	defer conn.Close()
+    conn, err := s.db.Connx(ctx)
+    if err != nil {
+        return err
+    }
+    defer conn.Close()
 
-	_, err = conn.ExecContext(ctx, `UPDATE sources SET priority = $1 WHERE id = $2`, priority, id)
+    _, err = conn.ExecContext(ctx, `UPDATE sources SET priority = ? WHERE id = ?`, priority, id)
 
-	return err
+    return err
 }
 
 func (s *SourceSQLiteStorage) Delete(ctx context.Context, id int64) error {
-	conn, err := s.db.Connx(ctx)
-	if err != nil {
-		return err
-	}
-	defer conn.Close()
+    conn, err := s.db.Connx(ctx)
+    if err != nil {
+        return err
+    }
+    defer conn.Close()
 
-	if _, err := conn.ExecContext(ctx, `DELETE FROM sources WHERE id = $1`, id); err != nil {
-		return err
-	}
+    if _, err := conn.ExecContext(ctx, `DELETE FROM sources WHERE id = ?`, id); err != nil {
+        return err
+    }
 
-	return nil
+    return nil
 }
 
 type dbSource struct {
