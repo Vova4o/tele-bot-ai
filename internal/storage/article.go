@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -57,7 +58,7 @@ func (s *ArticlePostgresStorage) Store(ctx context.Context, article model.Articl
 		article.Title,
 		article.Link,
 		article.Summary,
-		article.PublishedAt,
+		article.PublishedAt.Format("2006-01-02 15:04:05"),
 	); err != nil {
 		return err
 	}
@@ -73,6 +74,10 @@ func (s *ArticlePostgresStorage) AllNotPosted(ctx context.Context, since time.Ti
 	defer conn.Close()
 
 	var articles []dbArticleWithPriority
+
+	sinceStr := since.UTC().Format(time.RFC3339)
+	sinceStr = strings.Replace(sinceStr, "T", " ", 1)
+	sinceStr = strings.TrimSuffix(sinceStr, "Z")
 
 	if err := conn.SelectContext(
 		ctx,
@@ -91,7 +96,7 @@ func (s *ArticlePostgresStorage) AllNotPosted(ctx context.Context, since time.Ti
             WHERE a.posted_at IS NULL 
                 AND a.published_at >= ?
             ORDER BY a.created_at DESC, s_priority DESC LIMIT ?;`,
-		since.UTC().Format(time.RFC3339),
+		sinceStr,
 		limit,
 	); err != nil {
 		return nil, err
@@ -117,10 +122,14 @@ func (s *ArticlePostgresStorage) MarkAsPosted(ctx context.Context, article model
 	}
 	defer conn.Close()
 
+	nowStr := time.Now().UTC().Format(time.RFC3339)
+	nowStr = strings.Replace(nowStr, "T", " ", 1)
+	nowStr = strings.TrimSuffix(nowStr, "Z")
+
 	if _, err := conn.ExecContext(
 		ctx,
 		`UPDATE articles SET posted_at = ? WHERE id = ?;`,
-		time.Now().UTC().Format(time.RFC3339),
+		nowStr,
 		article.ID,
 	); err != nil {
 		return err

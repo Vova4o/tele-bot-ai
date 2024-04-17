@@ -3,6 +3,7 @@ module github.com/vova4o/tele-bot-ai
 go 1.22
 
 require (
+	github.com/DATA-DOG/go-sqlmock v1.5.2
 	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1
 	github.com/google/generative-ai-go v0.10.0
 	github.com/jmoiron/sqlx v1.3.5
